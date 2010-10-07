@@ -1,10 +1,10 @@
-globals [ counter ]
+globals [ gdirection ]
 
 to mysetup
   clear-all
-  set counter 0
+  set gdirection 0
   create-turtles 1 [
-    set heading -45
+    set heading gdirection
     set size 5
     set xcor 0
     set ycor 0
@@ -12,9 +12,10 @@ to mysetup
 end
 
 to mygo
-  set counter counter + 1
+  set gdirection gdirection + 1
   ask turtles [
-    forward 1
+    set heading gdirection
+    forward 0.1
   ]
 end
 @#$#@#$#@
@@ -39,8 +40,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-1
-1
+0
+0
 1
 ticks
 
