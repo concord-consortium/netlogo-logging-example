@@ -1,5 +1,10 @@
-<?xml version='1.0' encoding='utf-8'?>
-<jnlp spec='1.0+' codebase='file:///Users/aunger/workspace/netlogo-logging-example'>
+#!/bin/sh
+
+cd `dirname $0`
+DIR=`pwd`
+
+echo "<?xml version='1.0' encoding='utf-8'?>
+<jnlp spec='1.0+' codebase='file://${DIR}'>
   <information>
     <title>Netlogo Logging Example</title>
     <vendor>Concord Consortium</vendor>
@@ -35,4 +40,8 @@
     <jar href='nl-example.jar'/>
   </resources>
   <application-desc main-class='org.concord.netlogo.LoggingExample'/>
-</jnlp>
+</jnlp>" > nl-example.jnlp
+
+javaws nl-example.jnlp
+
+cd -
