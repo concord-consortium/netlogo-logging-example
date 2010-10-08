@@ -11,7 +11,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -23,60 +25,88 @@ import org.nlogo.log.LogMessage;
 import org.nlogo.window.InvalidVersionException;
 import org.nlogo.workspace.AbstractWorkspace;
 
-public class LoggingExample {
-    private static InterfaceComponent app;
-
-    public static void main(String[] args) {
-        final JFrame mainFrame = new JFrame("NetLogo Logging Example");
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.pack();
-        mainFrame.setVisible(true);
-        
-        AbstractWorkspace.isApp(true);
-        AbstractWorkspace.isApplet(true);
-
+public class LoggingExample extends JPanel {
+    private static final long serialVersionUID = 1L;
+    private static int instanceCount = 0;
+    private InterfaceComponent app;
+    private JFrame frame;
+    
+    public LoggingExample(JFrame frame) {
+        super();
+        instanceCount++;
+        this.frame = frame;
+    }
+    
+    public void init() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    app = new InterfaceComponent(mainFrame);
-                    
-                    mainFrame.add(app);
+                    app = new InterfaceComponent(frame);
+                    AbstractWorkspace.isApplet(true);
+                    frame.getContentPane().add(app);
                     
                     setupLogging();
                     
-                    loadModel(LoggingExample.class.getResource("model.nlogo"));
+                    // simple example. updates one global per tick
+                    URL modelUrl = LoggingExample.class.getResource("model.nlogo");
                     
-                    doCommand("mysetup");
+                    // to test relative image loading
+                    // URL modelUrl = new URL("http://itsisu.concord.org/share/netlogo/photosynthesis/leafmacrowithplotv41.nlogo");
+                    
+                    System.err.println("model URL is: " + modelUrl.toExternalForm());
+
+                    loadModel(modelUrl);
+                    
+                    // doCommand("mysetup");
                 } catch (InvalidVersionException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
-                mainFrame.pack();
-                mainFrame.setVisible(true);
             }
         });
-        
     }
 
-    private static void setupLogging() {
-        Reader reader = getLoggerProperties();
-        app.startLogging(reader, "user");
-
+    public static void main(String[] args) {
         Logger variablesLogger = Logger.getLogger("org.nlogo.log.Logger");
         variablesLogger.setLevel(Level.INFO);
         EventAppender eventAppender = new EventAppender();
         variablesLogger.addAppender(eventAppender);
+        
+        final JFrame mainFrame = initFrame("Netlogo Logging Example ");
+        
+        LoggingExample mainPanel = new LoggingExample(mainFrame);
+        mainPanel.init();
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                mainFrame.pack();
+                mainFrame.setVisible(true);
+            }
+        });
     }
     
-    private static void loadModel(URL modelLocation) throws InvalidVersionException, IOException {
+    private static JFrame initFrame(String title) {
+        JFrame mainFrame = new JFrame(title);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.getContentPane().setLayout(new BoxLayout(mainFrame.getContentPane(), BoxLayout.Y_AXIS));
+        mainFrame.pack();
+        mainFrame.setVisible(true);
+        return mainFrame;
+    }
+
+    private void setupLogging() {
+        Reader reader = getLoggerProperties();
+        app.startLogging(reader, "user"+instanceCount);
+    }
+    
+    private void loadModel(URL modelLocation) throws InvalidVersionException, IOException {
         app.setPrefix(modelLocation);
         String source = getStringFromUrl(modelLocation);
         app.openFromSource("Model", null, source);
     }
     
-    private static String getStringFromUrl(URL url) throws IOException {
+    private String getStringFromUrl(URL url) throws IOException {
         InputStream inputStream = url.openStream();
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         byte [] buffer = new byte[1024];
@@ -87,7 +117,7 @@ public class LoggingExample {
         return bout.toString();
     }
     
-    private static Reader getLoggerProperties(){
+    private Reader getLoggerProperties(){
         BufferedReader br = null;
 
         URL propertiesFile = LoggingExample.class.getResource("netlogo_logging.xml");
@@ -101,7 +131,7 @@ public class LoggingExample {
         return br;
     }
     
-    private static void doCommand(String command)
+    private void doCommand(String command)
     {
         try {
             app.commandLater(command);
@@ -132,6 +162,7 @@ public class LoggingExample {
 class EventAppender extends NullAppender {
     @Override
     public void doAppend(LoggingEvent event) {
+        // System.out.println("NDC: " + event.getNDC());
         LogMessage logMessage = (LogMessage) event.getMessage();
         
         HashMap<String, String> info = getEventInfo(logMessage);
