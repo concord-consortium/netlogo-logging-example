@@ -12,7 +12,7 @@ to mysetup
 end
 
 to mygo
-  set gdirection gdirection + 1
+  set gdirection (gdirection + 1) mod 360
   ask turtles [
     set heading gdirection
     forward 0.1
