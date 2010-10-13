@@ -1,0 +1,2 @@
+Run 'run-cli.sh' and see the globals being logged. 
+Run 'run-webstart.sh' and see that the globals are not being logged.
