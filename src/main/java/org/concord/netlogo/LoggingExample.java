@@ -48,10 +48,10 @@ public class LoggingExample extends JPanel {
                     setupLogging();
                     
                     // simple example. updates one global per tick
-                    URL modelUrl = LoggingExample.class.getResource("model.nlogo");
+                    // URL modelUrl = LoggingExample.class.getResource("model.nlogo");
                     
                     // to test relative image loading
-                    // URL modelUrl = new URL("http://itsisu.concord.org/share/netlogo/photosynthesis/leafmacrowithplotv41.nlogo");
+                    URL modelUrl = new URL("http://has.portal.concord.org/resources/space/waveGenerator-v2.nlogo");
                     
                     System.err.println("model URL is: " + modelUrl.toExternalForm());
 
