@@ -51,7 +51,7 @@ public class LoggingExample extends JPanel {
                     // URL modelUrl = LoggingExample.class.getResource("model.nlogo");
                     
                     // to test relative image loading
-                    URL modelUrl = new URL("http://has.portal.concord.org/resources/space/waveGenerator-v2.nlogo");
+                    URL modelUrl = new URL("http://www.concord.org/~aunger/nlogo/waveGenerator-v2.nlogo");
                     
                     System.err.println("model URL is: " + modelUrl.toExternalForm());
 
