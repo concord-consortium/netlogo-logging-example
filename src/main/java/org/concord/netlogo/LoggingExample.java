@@ -1,6 +1,9 @@
 package org.concord.netlogo;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,9 +14,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -25,11 +27,12 @@ import org.nlogo.log.LogMessage;
 import org.nlogo.window.InvalidVersionException;
 import org.nlogo.workspace.AbstractWorkspace;
 
-public class LoggingExample extends JPanel {
+public class LoggingExample {
     private static final long serialVersionUID = 1L;
     private static int instanceCount = 0;
     private InterfaceComponent app;
     private JFrame frame;
+    private static LoggingExample mainPanel;
     
     public LoggingExample(JFrame frame) {
         super();
@@ -43,7 +46,7 @@ public class LoggingExample extends JPanel {
                 try {
                     app = new InterfaceComponent(frame);
                     AbstractWorkspace.isApplet(true);
-                    frame.getContentPane().add(app);
+                    frame.getContentPane().add(app, BorderLayout.CENTER);
                     
                     setupLogging();
                     
@@ -75,7 +78,7 @@ public class LoggingExample extends JPanel {
         
         final JFrame mainFrame = initFrame("Netlogo Logging Example ");
         
-        LoggingExample mainPanel = new LoggingExample(mainFrame);
+        mainPanel = new LoggingExample(mainFrame);
         mainPanel.init();
 
         EventQueue.invokeLater(new Runnable() {
@@ -89,10 +92,26 @@ public class LoggingExample extends JPanel {
     private static JFrame initFrame(String title) {
         JFrame mainFrame = new JFrame(title);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.getContentPane().setLayout(new BoxLayout(mainFrame.getContentPane(), BoxLayout.Y_AXIS));
+        mainFrame.getContentPane().setLayout(new BorderLayout());
+        mainFrame.getContentPane().add(getNextModelButton(), BorderLayout.SOUTH);
         mainFrame.pack();
         mainFrame.setVisible(true);
         return mainFrame;
+    }
+    
+    private static JButton getNextModelButton() {
+        JButton button = new JButton("Next model");
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                mainPanel.destroyModel();
+                mainPanel.init();
+            }
+        });
+        return button;
+    }
+
+    public void destroyModel(){
+        app = null;
     }
 
     private void setupLogging() {
