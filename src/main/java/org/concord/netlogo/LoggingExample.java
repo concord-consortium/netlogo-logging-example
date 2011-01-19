@@ -38,14 +38,14 @@ public class LoggingExample {
         super();
         instanceCount++;
         this.frame = frame;
+        app = new InterfaceComponent(frame);
+        AbstractWorkspace.isApplet(true);
     }
     
     public void init() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    app = new InterfaceComponent(frame);
-                    AbstractWorkspace.isApplet(true);
                     frame.getContentPane().add(app, BorderLayout.CENTER);
                     
                     setupLogging();
@@ -111,7 +111,7 @@ public class LoggingExample {
     }
 
     public void destroyModel(){
-        app = null;
+//        app = null;
     }
 
     private void setupLogging() {
