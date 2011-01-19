@@ -32,7 +32,7 @@ echo "<?xml version='1.0' encoding='utf-8'?>
     <jar href='lib/jogl-1.1.1-rc6.jar'/>
     <jar href='lib/log4j-1.2.15.jar'/>
     <jar href='lib/mail-1.4.jar'/>
-    <jar href='lib/netlogo4-4.1.2c.jar'/>
+    <jar href='lib/NetLogo-20110119.jar'/>
     <jar href='lib/picocontainer-2.9.jar'/>
     <jar href='lib/quaqua-5.4.1-2009-07-14-macosx.jar'/>
     <jar href='lib/scala-library-2.7.7.jar'/>
