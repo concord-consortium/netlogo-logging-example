@@ -17,11 +17,8 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.varia.NullAppender;
 import org.nlogo.api.CompilerException;
+import org.nlogo.api.NetLogoListener;
 import org.nlogo.lite.InterfaceComponent;
 import org.nlogo.log.LogMessage;
 import org.nlogo.window.InvalidVersionException;
@@ -39,6 +36,7 @@ public class LoggingExample {
         instanceCount++;
         this.frame = frame;
         app = new InterfaceComponent(frame);
+        app.listenerManager.addListener(new MyListener());
         AbstractWorkspace.isApplet(true);
     }
     
@@ -47,8 +45,6 @@ public class LoggingExample {
             public void run() {
                 try {
                     frame.getContentPane().add(app, BorderLayout.CENTER);
-                    
-                    setupLogging();
                     
                     // simple example. updates one global per tick
                     // URL modelUrl = LoggingExample.class.getResource("model.nlogo");
@@ -71,11 +67,6 @@ public class LoggingExample {
     }
 
     public static void main(String[] args) {
-        Logger variablesLogger = Logger.getLogger("org.nlogo.log.Logger");
-        variablesLogger.setLevel(Level.INFO);
-        EventAppender eventAppender = new EventAppender();
-        variablesLogger.addAppender(eventAppender);
-        
         final JFrame mainFrame = initFrame("Netlogo Logging Example ");
         
         mainPanel = new LoggingExample(mainFrame);
@@ -114,11 +105,6 @@ public class LoggingExample {
 //        app = null;
     }
 
-    private void setupLogging() {
-        Reader reader = getLoggerProperties();
-        app.startLogging(reader, "user"+instanceCount);
-    }
-    
     private void loadModel(URL modelLocation) throws InvalidVersionException, IOException {
         app.setPrefix(modelLocation);
         String source = getStringFromUrl(modelLocation);
@@ -136,20 +122,6 @@ public class LoggingExample {
         return bout.toString();
     }
     
-    private Reader getLoggerProperties(){
-        BufferedReader br = null;
-
-        URL propertiesFile = LoggingExample.class.getResource("netlogo_logging.xml");
-        if (propertiesFile != null){
-            try {
-                br = new BufferedReader(new InputStreamReader(propertiesFile.openStream()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return br;
-    }
-    
     private void doCommand(String command)
     {
         try {
@@ -159,48 +131,27 @@ public class LoggingExample {
             e.printStackTrace();
         }
     }
-}
 
-/**
- * The EventAppender listens for every invocation of doAppend
- * by the Logger. The LogMessage that comes back can then
- * be parsed for information about the variable that has
- * changed and its new value.
- * 
- * Each log message has an array of attributes (e.g. "event" and
- * a type), and an array of elements, which consist of variable 
- * or button names and new values or actions.
- * 
- * Sample sets of attributes and elements:
- * 
- * [event type:globals, elements:[[tag:name, data:MY-RABBIT-ENERGY], [tag:value, data:5.0]] ] 
- * [event type:button, elements:[[tag:name, data:setup], [tag:action, data:released], [tag:releaseType, data:once]] ]
- * [event type:button, elements:[[tag:name, date:go], [tag:action, data:pressed], [tag:releaseType, data:user]] ]
- *
- */
-class EventAppender extends NullAppender {
-    @Override
-    public void doAppend(LoggingEvent event) {
-        // System.out.println("NDC: " + event.getNDC());
-        LogMessage logMessage = (LogMessage) event.getMessage();
-        
-        HashMap<String, String> info = getEventInfo(logMessage);
-        
-        debugMessage(info);
-    }
-    
-    private HashMap<String, String> getEventInfo(LogMessage message) {
-        HashMap<String, String> info = new HashMap<String, String>();
-        for (LogMessage element : message.elements) {
-            info.put(element.tag, element.data);
-        }
-        return info;
-    }
-    
-    private void debugMessage(HashMap<String, String> info) {
-      System.out.println("\n----------");
-      for (Map.Entry<String, String> e : info.entrySet()) {
-          System.out.println(e.getKey() + ": " + e.getValue());
-      }
-    }
+	public class MyListener implements NetLogoListener
+	{
+		public void modelOpened(String name) {
+			System.out.println("opened model " + name) ;
+		}
+		public void buttonPressed(String buttonName) {
+			System.out.println("user pressed button " + buttonName) ;
+		}
+		public void buttonStopped(String buttonName) { }
+		public void sliderChanged(String name, double value, double min,
+									double increment, double max, boolean valueChanged,
+									boolean buttonReleased) { }
+		public void switchChanged(String name, boolean value, boolean valueChanged) { }
+		public void chooserChanged(String name, Object value, boolean valueChanged) { }
+		public void inputBoxChanged(String name, Object value, boolean valueChanged) { }
+		public void commandEntered(String owner, String text, char agentType, CompilerException errorMsg) { }
+		public void tickCounterChanged(double ticks) {
+			System.out.println("ticks = " + ticks) ;
+		}
+		public void possibleViewUpdate() { }
+
+	}
 }
